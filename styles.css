@@ -1,0 +1,353 @@
+.vault-timeline {
+	--timeline-line: var(--background-modifier-border);
+	--timeline-dot: var(--interactive-accent);
+	height: 100%;
+	overflow-y: auto;
+	padding: 22px clamp(16px, 4vw, 48px) 48px;
+}
+
+.vault-timeline__header {
+	position: sticky;
+	z-index: 5;
+	top: 0;
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	margin: -22px 0 22px;
+	padding: 22px 0 14px;
+	background: var(--background-primary);
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.vault-timeline__heading h2 {
+	margin: 0;
+	font-size: 1.35em;
+}
+
+.vault-timeline__summary {
+	margin-top: 4px;
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+.vault-timeline__sorter {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+}
+
+.vault-timeline__controls {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	flex-wrap: wrap;
+	gap: 8px 12px;
+}
+
+.vault-timeline__create {
+	flex-shrink: 0;
+}
+
+.vault-timeline__composer {
+	position: relative;
+	max-width: 860px;
+	margin: 0 auto 20px;
+	padding: 14px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 12px;
+	background: var(--background-secondary);
+}
+
+.vault-timeline__tag-suggestions {
+	position: absolute;
+	z-index: 20;
+	right: 14px;
+	left: 14px;
+	max-height: 240px;
+	overflow-y: auto;
+	padding: 6px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	background: var(--background-primary);
+	box-shadow: var(--shadow-s);
+}
+
+.vault-timeline__tag-suggestions.is-hidden {
+	display: none;
+}
+
+.vault-timeline__tag-suggestion {
+	display: block;
+	width: 100%;
+	padding: 6px 10px;
+	border: 0;
+	background: transparent;
+	box-shadow: none;
+	color: var(--text-normal);
+	text-align: left;
+}
+
+.vault-timeline__tag-suggestion:hover,
+.vault-timeline__tag-suggestion.is-selected {
+	background: var(--background-modifier-hover);
+	color: var(--interactive-accent);
+	box-shadow: none;
+}
+
+.vault-timeline__composer.is-hidden {
+	display: none;
+}
+
+.vault-timeline__composer-hint {
+	margin-bottom: 8px;
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+.vault-timeline__composer-input {
+	display: block;
+	width: 100%;
+	min-height: 140px;
+	padding: 12px;
+	resize: vertical;
+	line-height: 1.6;
+}
+
+.vault-timeline__composer-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-top: 10px;
+}
+
+.vault-timeline__search {
+	width: min(260px, 34vw);
+}
+
+.vault-timeline__range {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--text-muted);
+}
+
+.vault-timeline__range input[type="date"] {
+	width: 132px;
+}
+
+.vault-timeline__clear-range {
+	height: 30px;
+	padding: 2px 8px;
+	font-size: var(--font-ui-smaller);
+}
+
+.vault-timeline__sorter select {
+	min-width: 112px;
+}
+
+.vault-timeline__list {
+	position: relative;
+	margin: 0 auto;
+	max-width: 860px;
+}
+
+.vault-timeline__list::before {
+	position: absolute;
+	top: 12px;
+	bottom: 0;
+	left: 7px;
+	width: 2px;
+	content: "";
+	background: var(--timeline-line);
+}
+
+.vault-timeline__item {
+	position: relative;
+	display: grid;
+	grid-template-columns: 16px minmax(0, 1fr);
+	gap: 18px;
+	margin: 0 0 20px;
+}
+
+.vault-timeline__dot {
+	z-index: 1;
+	width: 12px;
+	height: 12px;
+	margin-top: 20px;
+	border: 3px solid var(--background-primary);
+	border-radius: 50%;
+	background: var(--timeline-dot);
+	box-shadow: 0 0 0 1px var(--timeline-dot);
+}
+
+.vault-timeline__card {
+	min-width: 0;
+	padding: 16px 18px 12px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 12px;
+	background: var(--background-secondary);
+	box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
+}
+
+.vault-timeline__card-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+}
+
+.vault-timeline__title-wrap {
+	min-width: 0;
+}
+
+.vault-timeline__title,
+.vault-timeline__path {
+	display: block;
+	max-width: 100%;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	box-shadow: none;
+	text-align: left;
+}
+
+.vault-timeline__title {
+	overflow: hidden;
+	color: var(--text-normal);
+	font: inherit;
+	font-size: 1.05em;
+	font-weight: 650;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.vault-timeline__title:hover {
+	color: var(--interactive-accent);
+	background: transparent;
+	box-shadow: none;
+}
+
+.vault-timeline__time {
+	display: block;
+	margin-top: 3px;
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+}
+
+.vault-timeline__actions {
+	display: flex;
+	flex-shrink: 0;
+	gap: 6px;
+}
+
+.vault-timeline__action {
+	height: 28px;
+	padding: 3px 9px;
+	font-size: var(--font-ui-smaller);
+}
+
+.vault-timeline__preview {
+	margin-top: 14px;
+	color: var(--text-normal);
+	line-height: 1.65;
+	overflow-wrap: anywhere;
+	user-select: text;
+}
+
+.vault-timeline__preview > :first-child {
+	margin-top: 0;
+}
+
+.vault-timeline__preview > :last-child {
+	margin-bottom: 0;
+}
+
+.vault-timeline__preview img {
+	max-height: 360px;
+	object-fit: contain;
+}
+
+.vault-timeline__footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 14px;
+	padding-top: 10px;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.vault-timeline__path {
+	width: fit-content;
+	overflow: hidden;
+	padding: 3px 9px;
+	border-radius: 999px;
+	background: var(--background-modifier-hover);
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.vault-timeline__path:hover {
+	background: var(--background-modifier-active-hover);
+	color: var(--interactive-accent);
+	box-shadow: none;
+}
+
+.vault-timeline__truncated {
+	flex-shrink: 0;
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+}
+
+.vault-timeline__load-more {
+	display: block;
+	margin: 24px auto 0;
+}
+
+.vault-timeline__empty {
+	padding: 48px 16px;
+	color: var(--text-muted);
+	text-align: center;
+}
+
+@media (max-width: 600px) {
+	.vault-timeline__header {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	.vault-timeline__controls,
+	.vault-timeline__search {
+		width: 100%;
+	}
+
+	.vault-timeline__range {
+		flex-wrap: wrap;
+	}
+
+	.vault-timeline__item {
+		gap: 10px;
+	}
+
+	.vault-timeline__card-header {
+		flex-direction: column;
+	}
+
+	.vault-timeline__actions {
+		width: 100%;
+	}
+
+	.vault-timeline__action {
+		flex: 1;
+	}
+
+	.vault-timeline__footer {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"name": "obsidian-timeline",
+	"version": "0.1.0",
+	"description": "A chronological, full-vault timeline view for Obsidian",
+	"main": "main.js",
+	"type": "module",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"build:vault": "tsc -noEmit -skipLibCheck && VAULT_PLUGIN_DIR=../../content/.obsidian/plugins/obsidian-timeline node esbuild.config.mjs production"
+	},
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^22.15.17",
+		"esbuild": "0.25.5",
+		"obsidian": "latest",
+		"typescript": "^5.8.3"
+	}
+}
+
