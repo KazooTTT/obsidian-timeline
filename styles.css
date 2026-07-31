@@ -47,10 +47,6 @@
 	gap: 8px 12px;
 }
 
-.vault-timeline__create {
-	flex-shrink: 0;
-}
-
 .vault-timeline__composer {
 	position: relative;
 	max-width: 860px;
@@ -95,10 +91,6 @@
 	background: var(--background-modifier-hover);
 	color: var(--interactive-accent);
 	box-shadow: none;
-}
-
-.vault-timeline__composer.is-hidden {
-	display: none;
 }
 
 .vault-timeline__composer-hint {

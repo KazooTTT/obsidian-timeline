@@ -81,6 +81,7 @@ export class TimelineView extends ItemView {
 
 		this.renderHeader(container);
 		this.renderComposer(container);
+		this.availableTags = this.collectVaultTags();
 		this.listEl = container.createDiv({ cls: 'vault-timeline__list' });
 		this.loadMoreEl = container.createEl('button', {
 			cls: 'vault-timeline__load-more',
@@ -107,7 +108,7 @@ export class TimelineView extends ItemView {
 		this.scope?.register(['Mod'], 'Enter', () => {
 			if (
 				document.activeElement !== this.composerInputEl ||
-				this.composerEl?.hasClass('is-hidden')
+				!this.composerEl
 			) {
 				return;
 			}
@@ -135,7 +136,7 @@ export class TimelineView extends ItemView {
 				if (
 					event.key === 'Enter' &&
 					document.activeElement === this.composerInputEl &&
-					!this.composerEl?.hasClass('is-hidden')
+					!!this.composerEl
 				) {
 					event.preventDefault();
 					event.stopImmediatePropagation();
@@ -201,15 +202,6 @@ export class TimelineView extends ItemView {
 		this.summaryEl = heading.createDiv({ cls: 'vault-timeline__summary' });
 
 		const controls = header.createDiv({ cls: 'vault-timeline__controls' });
-		const createButton = controls.createEl('button', {
-			cls: 'vault-timeline__create',
-			text: '＋ 新建',
-			attr: { 'aria-label': '新建时间线笔记' },
-		});
-		createButton.addEventListener('click', () => {
-			this.toggleComposer();
-		});
-
 		const search = controls.createEl('input', {
 			cls: 'vault-timeline__search',
 			attr: {
@@ -269,7 +261,7 @@ export class TimelineView extends ItemView {
 
 	private renderComposer(container: HTMLElement): void {
 		this.composerEl = container.createDiv({
-			cls: 'vault-timeline__composer is-hidden',
+			cls: 'vault-timeline__composer',
 		});
 		this.composerEl.createDiv({
 			cls: 'vault-timeline__composer-hint',
@@ -302,6 +294,9 @@ export class TimelineView extends ItemView {
 		this.composerInputEl.addEventListener('input', () => {
 			this.updateTagSuggestions();
 		});
+		this.composerInputEl.addEventListener('focus', () => {
+			this.availableTags = this.collectVaultTags();
+		});
 		this.composerInputEl.addEventListener('keydown', (event) => {
 			if (this.handleTagSuggestionKeydown(event)) {
 				return;
@@ -313,22 +308,11 @@ export class TimelineView extends ItemView {
 		});
 	}
 
-	private toggleComposer(): void {
-		if (!this.composerEl || !this.composerInputEl) {
+	private closeComposer(): void {
+		if (!this.composerInputEl) {
 			return;
 		}
-		const willOpen = this.composerEl.hasClass('is-hidden');
-		this.composerEl.toggleClass('is-hidden', !willOpen);
-		if (willOpen) {
-			this.availableTags = this.collectVaultTags();
-			this.composerInputEl.focus();
-		} else {
-			this.hideTagSuggestions();
-		}
-	}
-
-	private closeComposer(): void {
-		this.composerEl?.addClass('is-hidden');
+		this.composerInputEl.value = '';
 		this.hideTagSuggestions();
 	}
 
