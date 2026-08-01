@@ -6,6 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
+		"test": "node --experimental-strip-types --test tests/excalidraw-preview.test.ts",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
 		"build:vault": "tsc -noEmit -skipLibCheck && VAULT_PLUGIN_DIR=../../content/.obsidian/plugins/obsidian-timeline node esbuild.config.mjs production"
 	},

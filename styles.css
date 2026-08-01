@@ -301,6 +301,71 @@
 	object-fit: contain;
 }
 
+.vault-timeline__preview.is-excalidraw {
+	display: flex;
+	max-height: 520px;
+	overflow: auto;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	background: var(--background-primary);
+}
+
+.vault-timeline__excalidraw-svg {
+	display: block;
+	width: 100%;
+	height: auto;
+	max-height: 500px;
+	margin: auto;
+}
+
+.vault-timeline__excalidraw-fallback {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	width: 100%;
+	padding: 22px;
+	color: var(--text-muted);
+}
+
+.vault-timeline__excalidraw-icon {
+	display: grid;
+	flex: 0 0 40px;
+	width: 40px;
+	height: 40px;
+	place-items: center;
+	border-radius: 10px;
+	background: var(--background-modifier-hover);
+	color: var(--interactive-accent);
+}
+
+.vault-timeline__excalidraw-fallback.is-loading
+	.vault-timeline__excalidraw-icon {
+	animation: vault-timeline-pulse 1.4s ease-in-out infinite;
+}
+
+.vault-timeline__excalidraw-label {
+	color: var(--text-normal);
+	font-weight: 600;
+}
+
+.vault-timeline__excalidraw-description {
+	margin-top: 3px;
+	font-size: var(--font-ui-smaller);
+}
+
+@keyframes vault-timeline-pulse {
+	50% {
+		opacity: 0.45;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.vault-timeline__excalidraw-fallback.is-loading
+		.vault-timeline__excalidraw-icon {
+		animation: none;
+	}
+}
+
 .vault-timeline__footer {
 	display: flex;
 	align-items: center;

@@ -8,6 +8,7 @@ import {
 	TFolder,
 	WorkspaceLeaf,
 	normalizePath,
+	setIcon,
 	type App,
 } from 'obsidian';
 import {
@@ -20,10 +21,16 @@ import {
 import type TimelinePlugin from './main';
 import { ObsidianMarkdownComposer } from './ObsidianMarkdownComposer';
 import {
+	createExcalidrawPreviewSvg,
+	getTimelinePreviewKind,
+} from './excalidraw-preview';
+import {
 	createExcerpt,
 	timestampFor,
 	type TimelineSort,
 } from './timeline-utils';
+
+const EXCALIDRAW_PREVIEW_CACHE_LIMIT = 20;
 
 export class TimelineView extends ItemView {
 	private listEl: HTMLElement | null = null;
@@ -47,6 +54,10 @@ export class TimelineView extends ItemView {
 	private contentIndex = new Map<
 		string,
 		{ mtime: number; searchableContent: string }
+	>();
+	private excalidrawPreviewCache = new Map<
+		string,
+		{ mtime: number; svg: SVGSVGElement }
 	>();
 
 	constructor(
@@ -124,6 +135,7 @@ export class TimelineView extends ItemView {
 		const scheduleRefresh = (file?: TFile): void => {
 			if (file) {
 				this.contentIndex.delete(file.path);
+				this.excalidrawPreviewCache.delete(file.path);
 			}
 			if (this.refreshTimer !== null) {
 				window.clearTimeout(this.refreshTimer);
@@ -147,6 +159,7 @@ export class TimelineView extends ItemView {
 		this.registerEvent(
 			this.app.vault.on('rename', (file, oldPath) => {
 				this.contentIndex.delete(oldPath);
+				this.excalidrawPreviewCache.delete(oldPath);
 				if (file instanceof TFile) scheduleRefresh(file);
 			}),
 		);
@@ -563,16 +576,21 @@ export class TimelineView extends ItemView {
 
 		const excerpt = createExcerpt(rawContent, PREVIEW_CHARACTER_LIMIT);
 		const preview = content.createDiv({ cls: 'vault-timeline__preview' });
-		const component = new Component();
-		this.addChild(component);
-		this.renderComponents.push(component);
-		await MarkdownRenderer.render(
-			this.app,
-			excerpt.content || '*空笔记*',
-			preview,
-			file.path,
-			component,
-		);
+		const previewKind = getTimelinePreviewKind(file.path, rawContent);
+		if (previewKind === 'excalidraw') {
+			this.renderExcalidrawPreview(file, preview, generation);
+		} else {
+			const component = new Component();
+			this.addChild(component);
+			this.renderComponents.push(component);
+			await MarkdownRenderer.render(
+				this.app,
+				excerpt.content || '*空笔记*',
+				preview,
+				file.path,
+				component,
+			);
+		}
 
 		copyButton.addEventListener('click', async () => {
 			try {
@@ -599,12 +617,112 @@ export class TimelineView extends ItemView {
 			void this.openFile(file);
 		});
 
-		if (excerpt.truncated) {
+		if (excerpt.truncated && previewKind === 'markdown') {
 			footer.createSpan({
 				cls: 'vault-timeline__truncated',
 				text: `正文较长，已展示前 ${PREVIEW_CHARACTER_LIMIT} 字`,
 			});
 		}
+	}
+
+	private renderExcalidrawPreview(
+		file: TFile,
+		preview: HTMLElement,
+		generation: number,
+	): void {
+		preview.addClass('is-excalidraw');
+		const cached = this.excalidrawPreviewCache.get(file.path);
+		if (cached?.mtime === file.stat.mtime) {
+			this.appendExcalidrawSvg(
+				file,
+				preview,
+				cached.svg.cloneNode(true) as SVGSVGElement,
+			);
+			return;
+		}
+
+		this.renderExcalidrawStatus(preview, true);
+		void this.loadExcalidrawPreview(file, preview, generation);
+	}
+
+	private async loadExcalidrawPreview(
+		file: TFile,
+		preview: HTMLElement,
+		generation: number,
+	): Promise<void> {
+		const requestedMtime = file.stat.mtime;
+		const svg = await createExcalidrawPreviewSvg(file);
+		if (
+			generation !== this.renderGeneration ||
+			!preview.isConnected ||
+			file.stat.mtime !== requestedMtime
+		) {
+			return;
+		}
+
+		preview.empty();
+		if (svg) {
+			this.cacheExcalidrawPreview(file.path, requestedMtime, svg);
+			this.appendExcalidrawSvg(file, preview, svg);
+			return;
+		}
+		this.renderExcalidrawStatus(preview, false);
+	}
+
+	private cacheExcalidrawPreview(
+		path: string,
+		mtime: number,
+		svg: SVGSVGElement,
+	): void {
+		this.excalidrawPreviewCache.delete(path);
+		this.excalidrawPreviewCache.set(path, {
+			mtime,
+			svg: svg.cloneNode(true) as SVGSVGElement,
+		});
+		while (
+			this.excalidrawPreviewCache.size > EXCALIDRAW_PREVIEW_CACHE_LIMIT
+		) {
+			const oldestPath = this.excalidrawPreviewCache.keys().next().value;
+			if (!oldestPath) break;
+			this.excalidrawPreviewCache.delete(oldestPath);
+		}
+	}
+
+	private appendExcalidrawSvg(
+		file: TFile,
+		preview: HTMLElement,
+		svg: SVGSVGElement,
+	): void {
+		svg.addClass('vault-timeline__excalidraw-svg');
+		svg.setAttribute('role', 'img');
+		svg.setAttribute('aria-label', `${file.basename} 绘图预览`);
+		preview.appendChild(svg);
+	}
+
+	private renderExcalidrawStatus(
+		preview: HTMLElement,
+		loading: boolean,
+	): void {
+		const fallback = preview.createDiv({
+			cls: `vault-timeline__excalidraw-fallback${
+				loading ? ' is-loading' : ''
+			}`,
+		});
+		const icon = fallback.createDiv({
+			cls: 'vault-timeline__excalidraw-icon',
+		});
+		setIcon(icon, 'pencil');
+		const copy = fallback.createDiv();
+		copy.createDiv({
+			cls: 'vault-timeline__excalidraw-label',
+			text: loading ? '正在生成 Excalidraw 预览…' : 'Excalidraw 绘图',
+		});
+		copy.createDiv({
+			cls: 'vault-timeline__excalidraw-description',
+			text: loading
+				? '时间线其他内容可以继续加载。'
+				: '当前无法生成画布预览，请打开原文查看。',
+		});
 	}
 
 	private async openFile(file: TFile): Promise<void> {
