@@ -7,7 +7,6 @@ import {
 	TFile,
 	TFolder,
 	WorkspaceLeaf,
-	getAllTags,
 	normalizePath,
 	type App,
 } from 'obsidian';
@@ -19,6 +18,7 @@ import {
 	VIEW_TYPE_TIMELINE,
 } from './constants';
 import type TimelinePlugin from './main';
+import { ObsidianMarkdownComposer } from './ObsidianMarkdownComposer';
 import {
 	createExcerpt,
 	timestampFor,
@@ -30,12 +30,7 @@ export class TimelineView extends ItemView {
 	private summaryEl: HTMLElement | null = null;
 	private searchInputEl: HTMLInputElement | null = null;
 	private composerEl: HTMLElement | null = null;
-	private composerInputEl: HTMLTextAreaElement | null = null;
-	private tagSuggestEl: HTMLElement | null = null;
-	private tagSuggestions: string[] = [];
-	private selectedTagIndex = 0;
-	private tagQueryStart = -1;
-	private availableTags: string[] = [];
+	private composer: ObsidianMarkdownComposer | null = null;
 	private loadMoreEl: HTMLButtonElement | null = null;
 	private sortedFiles: TFile[] = [];
 	private filteredFiles: TFile[] = [];
@@ -81,7 +76,6 @@ export class TimelineView extends ItemView {
 
 		this.renderHeader(container);
 		this.renderComposer(container);
-		this.availableTags = this.collectVaultTags();
 		this.listEl = container.createDiv({ cls: 'vault-timeline__list' });
 		this.loadMoreEl = container.createEl('button', {
 			cls: 'vault-timeline__load-more',
@@ -105,16 +99,6 @@ export class TimelineView extends ItemView {
 			this.searchInputEl?.select();
 			return false;
 		});
-		this.scope?.register(['Mod'], 'Enter', () => {
-			if (
-				document.activeElement !== this.composerInputEl ||
-				!this.composerEl
-			) {
-				return;
-			}
-			void this.createTimelineNote();
-			return false;
-		});
 		this.registerDomEvent(
 			window,
 			'keydown',
@@ -132,15 +116,6 @@ export class TimelineView extends ItemView {
 					this.searchInputEl?.focus();
 					this.searchInputEl?.select();
 					return;
-				}
-				if (
-					event.key === 'Enter' &&
-					document.activeElement === this.composerInputEl &&
-					!!this.composerEl
-				) {
-					event.preventDefault();
-					event.stopImmediatePropagation();
-					void this.createTimelineNote();
 				}
 			},
 			{ capture: true },
@@ -265,19 +240,22 @@ export class TimelineView extends ItemView {
 		});
 		this.composerEl.createDiv({
 			cls: 'vault-timeline__composer-hint',
-			text: `保存到 ${TIMELINE_NOTE_FOLDER}/ · 文件名自动使用当前时间`,
+			text: `Obsidian Live Preview · 保存到 ${TIMELINE_NOTE_FOLDER}/ · 文件名自动使用当前时间`,
 		});
-		this.composerInputEl = this.composerEl.createEl('textarea', {
-			cls: 'vault-timeline__composer-input',
-			attr: {
-				placeholder: '现在在想什么？支持 Markdown…',
-				'aria-label': '新笔记内容',
+		const editorHost = this.composerEl.createDiv({
+			cls: 'vault-timeline__composer-editor',
+			attr: { 'aria-label': '新笔记内容' },
+		});
+		this.composer = new ObsidianMarkdownComposer(this.app, editorHost, {
+			placeholder: '现在在想什么？支持 Markdown、[[链接]] 和 #标签…',
+			contextFile: this.getComposerContextFile(),
+			contextPath: normalizePath(`${TIMELINE_NOTE_FOLDER}/未命名.md`),
+			onEscape: () => this.closeComposer(),
+			onSubmit: () => {
+				void this.createTimelineNote();
 			},
 		});
-		this.tagSuggestEl = this.composerEl.createDiv({
-			cls: 'vault-timeline__tag-suggestions is-hidden',
-			attr: { role: 'listbox', 'aria-label': '标签建议' },
-		});
+		this.addChild(this.composer);
 
 		const actions = this.composerEl.createDiv({
 			cls: 'vault-timeline__composer-actions',
@@ -291,146 +269,26 @@ export class TimelineView extends ItemView {
 		saveButton.addEventListener('click', () => {
 			void this.createTimelineNote();
 		});
-		this.composerInputEl.addEventListener('input', () => {
-			this.updateTagSuggestions();
-		});
-		this.composerInputEl.addEventListener('focus', () => {
-			this.availableTags = this.collectVaultTags();
-		});
-		this.composerInputEl.addEventListener('keydown', (event) => {
-			if (this.handleTagSuggestionKeydown(event)) {
-				return;
-			}
-			if (event.key === 'Escape') {
-				event.preventDefault();
-				this.closeComposer();
-			}
-		});
+	}
+
+	private getComposerContextFile(): TFile | null {
+		return (
+			this.app.vault
+				.getMarkdownFiles()
+				.find((file) => file.path.startsWith(`${TIMELINE_NOTE_FOLDER}/`)) ??
+			this.app.workspace.getActiveFile()
+		);
 	}
 
 	private closeComposer(): void {
-		if (!this.composerInputEl) {
-			return;
-		}
-		this.composerInputEl.value = '';
-		this.hideTagSuggestions();
-	}
-
-	private collectVaultTags(): string[] {
-		const tags = new Set<string>();
-		for (const file of this.app.vault.getMarkdownFiles()) {
-			const cache = this.app.metadataCache.getFileCache(file);
-			if (!cache) continue;
-			for (const tag of getAllTags(cache) ?? []) {
-				tags.add(tag.startsWith('#') ? tag : `#${tag}`);
-			}
-		}
-		return [...tags].sort((left, right) => left.localeCompare(right));
-	}
-
-	private updateTagSuggestions(): void {
-		const input = this.composerInputEl;
-		if (!input) return;
-
-		const cursor = input.selectionStart;
-		const match = input.value.slice(0, cursor).match(/(?:^|\s)(#[^\s#]*)$/);
-		if (!match?.[1]) {
-			this.hideTagSuggestions();
-			return;
-		}
-
-		const query = match[1].slice(1).toLocaleLowerCase();
-		this.tagQueryStart = cursor - match[1].length;
-		this.tagSuggestions = this.availableTags
-			.filter((tag) => tag.slice(1).toLocaleLowerCase().includes(query))
-			.sort((left, right) => {
-				const leftStarts = left.slice(1).toLocaleLowerCase().startsWith(query);
-				const rightStarts = right.slice(1).toLocaleLowerCase().startsWith(query);
-				return Number(rightStarts) - Number(leftStarts);
-			})
-			.slice(0, 10);
-		this.selectedTagIndex = 0;
-		this.renderTagSuggestions();
-	}
-
-	private renderTagSuggestions(): void {
-		const container = this.tagSuggestEl;
-		if (!container || this.tagSuggestions.length === 0) {
-			this.hideTagSuggestions();
-			return;
-		}
-
-		container.empty();
-		container.removeClass('is-hidden');
-		this.tagSuggestions.forEach((tag, index) => {
-			const button = container.createEl('button', {
-				cls: `vault-timeline__tag-suggestion${
-					index === this.selectedTagIndex ? ' is-selected' : ''
-				}`,
-				text: tag,
-				attr: { role: 'option' },
-			});
-			button.addEventListener('mousedown', (event) => {
-				event.preventDefault();
-				this.insertTag(tag);
-			});
-		});
-	}
-
-	private handleTagSuggestionKeydown(event: KeyboardEvent): boolean {
-		if (this.tagSuggestEl?.hasClass('is-hidden') || !this.tagSuggestions.length) {
-			return false;
-		}
-		if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-			event.preventDefault();
-			const direction = event.key === 'ArrowDown' ? 1 : -1;
-			this.selectedTagIndex =
-				(this.selectedTagIndex + direction + this.tagSuggestions.length) %
-				this.tagSuggestions.length;
-			this.renderTagSuggestions();
-			return true;
-		}
-		if (
-			event.key === 'Enter' &&
-			!event.metaKey &&
-			!event.ctrlKey &&
-			!event.altKey
-		) {
-			event.preventDefault();
-			const tag = this.tagSuggestions[this.selectedTagIndex];
-			if (tag) this.insertTag(tag);
-			return true;
-		}
-		if (event.key === 'Escape') {
-			event.preventDefault();
-			this.hideTagSuggestions();
-			return true;
-		}
-		return false;
-	}
-
-	private insertTag(tag: string): void {
-		const input = this.composerInputEl;
-		if (!input || this.tagQueryStart < 0) return;
-
-		const cursor = input.selectionStart;
-		input.setRangeText(`${tag} `, this.tagQueryStart, cursor, 'end');
-		this.hideTagSuggestions();
-		input.focus();
-	}
-
-	private hideTagSuggestions(): void {
-		this.tagSuggestEl?.addClass('is-hidden');
-		this.tagSuggestions = [];
-		this.tagQueryStart = -1;
+		this.composer?.setValue('');
 	}
 
 	private async createTimelineNote(): Promise<void> {
-		const input = this.composerInputEl;
-		const content = input?.value.trim();
-		if (!input || !content) {
+		const content = this.composer?.getValue().trim();
+		if (!this.composer || !content) {
 			new Notice('请先输入笔记内容。');
-			input?.focus();
+			this.composer?.focus();
 			return;
 		}
 
@@ -438,7 +296,6 @@ export class TimelineView extends ItemView {
 			await this.ensureTimelineFolder();
 			const path = this.getAvailableTimelinePath(new Date());
 			await this.app.vault.create(path, `${content}\n`);
-			input.value = '';
 			this.closeComposer();
 			new Notice(`已创建：${path}`);
 		} catch (error) {
