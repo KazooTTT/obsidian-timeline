@@ -175,6 +175,19 @@
 	font-size: var(--font-ui-smaller);
 }
 
+.vault-timeline__create {
+	height: 32px;
+	padding: 4px 10px;
+	border-radius: 8px;
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	font-size: var(--font-ui-smaller);
+}
+
+.vault-timeline__create:hover {
+	filter: brightness(0.95);
+}
+
 .vault-timeline__sorter select {
 	min-width: 112px;
 }

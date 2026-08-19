@@ -232,6 +232,15 @@ export class TimelineView extends ItemView {
 			void this.applyFilters();
 		});
 
+		const createButton = controls.createEl('button', {
+			cls: 'vault-timeline__create',
+			text: '＋ 新建',
+			attr: { 'aria-label': '创建新时间线条目并在旁边打开' },
+		});
+		createButton.addEventListener('click', () => {
+			void this.createEmptyTimelineNote();
+		});
+
 		const sorter = controls.createDiv({ cls: 'vault-timeline__sorter' });
 		sorter.createSpan({ text: '排序' });
 		const select = sorter.createEl('select', {
@@ -310,6 +319,20 @@ export class TimelineView extends ItemView {
 			const path = this.getAvailableTimelinePath(new Date());
 			await this.app.vault.create(path, `${content}\n`);
 			this.closeComposer();
+			new Notice(`已创建：${path}`);
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : '未知错误';
+			new Notice(`创建失败：${message}`);
+		}
+	}
+
+	private async createEmptyTimelineNote(): Promise<void> {
+		try {
+			await this.ensureTimelineFolder();
+			const path = this.getAvailableTimelinePath(new Date());
+			const file = await this.app.vault.create(path, '');
+			await this.openFile(file, 'split');
 			new Notice(`已创建：${path}`);
 		} catch (error) {
 			const message =
@@ -725,8 +748,17 @@ export class TimelineView extends ItemView {
 		});
 	}
 
-	private async openFile(file: TFile): Promise<void> {
-		await this.app.workspace.getLeaf(false).openFile(file);
+	private async openFile(
+		file: TFile,
+		location: 'tab' | 'split' | false = false,
+	): Promise<void> {
+		const leaf = this.app.workspace.getLeaf(location);
+		await leaf.openFile(file, {
+			active: true,
+			state: {
+				mode: 'source',
+			},
+		});
 	}
 
 	private clearRenderComponents(): void {
