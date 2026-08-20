@@ -244,39 +244,40 @@
 }
 
 .vault-timeline__title-wrap {
+	display: flex;
 	min-width: 0;
-}
-
-.vault-timeline__title,
-.vault-timeline__path {
-	display: block;
-	max-width: 100%;
-	padding: 0;
-	border: 0;
-	background: transparent;
-	box-shadow: none;
-	text-align: left;
+	align-items: flex-start;
+	flex-direction: column;
+	gap: 6px;
 }
 
 .vault-timeline__title {
+	display: block;
+	max-width: 100%;
 	overflow: hidden;
+	padding: 4px 8px;
+	border: 0;
+	border-radius: 6px;
+	background: transparent;
+	box-shadow: none;
 	color: var(--text-normal);
 	font: inherit;
 	font-size: 1.05em;
 	font-weight: 650;
+	line-height: 1.35;
+	text-align: left;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
 .vault-timeline__title:hover {
 	color: var(--interactive-accent);
-	background: transparent;
+	background: var(--background-modifier-hover);
 	box-shadow: none;
 }
 
 .vault-timeline__time {
 	display: block;
-	margin-top: 3px;
 	color: var(--text-muted);
 	font-size: var(--font-ui-smaller);
 }
@@ -390,13 +391,20 @@
 }
 
 .vault-timeline__path {
+	display: block;
+	max-width: 100%;
 	width: fit-content;
 	overflow: hidden;
-	padding: 3px 9px;
+	padding: 4px 10px;
+	border: 0;
 	border-radius: 999px;
 	background: var(--background-modifier-hover);
+	box-shadow: none;
 	color: var(--text-muted);
+	font: inherit;
 	font-size: var(--font-ui-smaller);
+	line-height: 1.35;
+	text-align: left;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }

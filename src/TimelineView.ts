@@ -575,6 +575,18 @@ export class TimelineView extends ItemView {
 			void this.openFile(file);
 		});
 
+		const path = titleWrap.createEl('button', {
+			cls: 'vault-timeline__path',
+			text: getParentFolder(file.path),
+			attr: {
+				title: `${file.path}\n点击打开原文`,
+				'aria-label': `打开 ${file.path}`,
+			},
+		});
+		path.addEventListener('click', () => {
+			void this.openFile(file);
+		});
+
 		const activeTimestamp = timestampFor(file.stat, this.plugin.settings.sortBy);
 		const time = titleWrap.createEl('time', {
 			cls: 'vault-timeline__time',
@@ -599,6 +611,9 @@ export class TimelineView extends ItemView {
 
 		const excerpt = createExcerpt(rawContent, PREVIEW_CHARACTER_LIMIT);
 		const preview = content.createDiv({ cls: 'vault-timeline__preview' });
+		preview.addEventListener('dblclick', () => {
+			void this.openFile(file);
+		});
 		const previewKind = getTimelinePreviewKind(file.path, rawContent);
 		if (previewKind === 'excalidraw') {
 			this.renderExcalidrawPreview(file, preview, generation);
@@ -627,20 +642,8 @@ export class TimelineView extends ItemView {
 			void this.openFile(file);
 		});
 
-		const footer = content.createDiv({ cls: 'vault-timeline__footer' });
-		const pathButton = footer.createEl('button', {
-			cls: 'vault-timeline__path',
-			text: getParentFolder(file.path),
-			attr: {
-				title: `${file.path}\n点击打开原文`,
-				'aria-label': `打开 ${file.path}`,
-			},
-		});
-		pathButton.addEventListener('click', () => {
-			void this.openFile(file);
-		});
-
 		if (excerpt.truncated && previewKind === 'markdown') {
+			const footer = content.createDiv({ cls: 'vault-timeline__footer' });
 			footer.createSpan({
 				cls: 'vault-timeline__truncated',
 				text: `正文较长，已展示前 ${PREVIEW_CHARACTER_LIMIT} 字`,
