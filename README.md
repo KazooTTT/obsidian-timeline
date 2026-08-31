@@ -1,6 +1,12 @@
-# Vault Timeline
+# KazooTTT Vault Timeline
 
 将当前 Obsidian Vault 中的所有 Markdown 文件汇总到一个类似 flomo、Thino 或微博的时间线视图。
+
+- **插件 ID**：`kazoottt-obsidian-timeline`（原名 `obsidian-timeline`，因与社区插件撞 ID 于 v0.3.1 改名）
+- **仓库**：https://github.com/KazooTTT/obsidian-timeline
+- **本地源码**：`/Users/kazoottt/personal/quartz/tools/obsidian-timeline/`
+
+<!-- TODO(截图): 时间线主视图；顶部内联编辑器；Excalidraw 卡片预览 -->
 
 ## 功能
 
@@ -19,14 +25,24 @@
 - 文件创建、修改、重命名或删除后自动刷新时间线
 - 支持桌面端与移动端主题、自适应窄屏布局
 
-## 安装到当前 Vault
+## 安装
+
+### BRAT（推荐）
+
+1. 安装 [BRAT](https://github.com/TfTHacker/obsidian42-brat)
+2. 添加 Beta 插件：`KazooTTT/obsidian-timeline`
+3. 在 Obsidian 的「设置 → 第三方插件」中启用 **KazooTTT Vault Timeline**
+
+> ⚠️ 不要在社区插件市场安装名为 **Timeline** 的插件（George Butco 版），它曾与本插件撞 ID 并覆盖安装文件。
+
+### 从源码安装到当前 Vault
 
 ```bash
 npm install
 npm run build:vault
 ```
 
-然后在 Obsidian 的“设置 → 第三方插件”中启用 **Vault Timeline**。
+然后在 Obsidian 的「设置 → 第三方插件」中启用 **KazooTTT Vault Timeline**。
 
 ## 使用
 
