@@ -6,7 +6,9 @@
 - **仓库**：https://github.com/KazooTTT/obsidian-timeline
 - **本地源码**：`/Users/kazoottt/personal/quartz/tools/obsidian-timeline/`
 
-<!-- TODO(截图): 时间线主视图；顶部内联编辑器；Excalidraw 卡片预览 -->
+![Vault Timeline 主视图](docs/screenshots/timeline-main-view.png)
+
+<!-- TODO(截图): Excalidraw 卡片预览 -->
 
 ## 功能
 
