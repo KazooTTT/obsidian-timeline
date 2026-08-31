@@ -1,6 +1,6 @@
 {
-	"name": "obsidian-timeline",
-	"version": "0.3.0",
+	"name": "kazoottt-obsidian-timeline",
+	"version": "0.3.1",
 	"description": "A chronological, full-vault timeline view for Obsidian",
 	"main": "main.js",
 	"type": "module",
@@ -8,7 +8,7 @@
 		"dev": "node esbuild.config.mjs",
 		"test": "node --experimental-strip-types --test tests/excalidraw-preview.test.ts",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-		"build:vault": "tsc -noEmit -skipLibCheck && VAULT_PLUGIN_DIR=../../content/.obsidian/plugins/obsidian-timeline node esbuild.config.mjs production"
+		"build:vault": "tsc -noEmit -skipLibCheck && VAULT_PLUGIN_DIR=../../content/.obsidian/plugins/kazoottt-obsidian-timeline node esbuild.config.mjs production"
 	},
 	"license": "MIT",
 	"devDependencies": {

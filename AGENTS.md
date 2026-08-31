@@ -1,6 +1,6 @@
 # Agent notes
 
-Obsidian plugin: **Vault Timeline** (`obsidian-timeline`). Repo: https://github.com/KazooTTT/obsidian-timeline
+Obsidian plugin: **KazooTTT Vault Timeline** (`kazoottt-obsidian-timeline`). Repo: https://github.com/KazooTTT/obsidian-timeline
 
 ## BRAT / GitHub Release
 

@@ -1,7 +1,7 @@
 {
-	"id": "obsidian-timeline",
-	"name": "Vault Timeline",
-	"version": "0.3.0",
+	"id": "kazoottt-obsidian-timeline",
+	"name": "KazooTTT Vault Timeline",
+	"version": "0.3.1",
 	"minAppVersion": "1.5.0",
 	"description": "Browse every Markdown note in the vault as a chronological timeline.",
 	"author": "KazooTTT",
