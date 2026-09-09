@@ -1,6 +1,6 @@
 {
 	"name": "kazoottt-obsidian-timeline",
-	"version": "0.3.1",
+	"version": "0.3.2",
 	"description": "A chronological, full-vault timeline view for Obsidian",
 	"main": "main.js",
 	"type": "module",

@@ -34,13 +34,13 @@ export default class TimelinePlugin extends Plugin {
 
 		this.addCommand({
 			id: 'open-vault-timeline',
-			name: '打开 Vault 时间线',
+			name: '打开时间线',
 			callback: () => {
 				void openTimelineView(this.app);
 			},
 		});
 
-		this.addRibbonIcon(TIMELINE_ICON, '打开 Vault 时间线', () => {
+		this.addRibbonIcon(TIMELINE_ICON, '打开时间线', () => {
 			void openTimelineView(this.app);
 		});
 	}

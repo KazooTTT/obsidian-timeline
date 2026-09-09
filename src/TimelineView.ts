@@ -73,7 +73,7 @@ export class TimelineView extends ItemView {
 	}
 
 	getDisplayText(): string {
-		return 'Vault 时间线';
+		return '时间线';
 	}
 
 	getIcon(): string {
@@ -185,9 +185,7 @@ export class TimelineView extends ItemView {
 
 	private renderHeader(container: HTMLElement): void {
 		const header = container.createDiv({ cls: 'vault-timeline__header' });
-		const heading = header.createDiv({ cls: 'vault-timeline__heading' });
-		heading.createEl('h2', { text: 'Vault 时间线' });
-		this.summaryEl = heading.createDiv({ cls: 'vault-timeline__summary' });
+		this.summaryEl = header.createDiv({ cls: 'vault-timeline__summary' });
 
 		const controls = header.createDiv({ cls: 'vault-timeline__controls' });
 		const search = controls.createEl('input', {
@@ -453,7 +451,7 @@ export class TimelineView extends ItemView {
 				cls: 'vault-timeline__empty',
 				text:
 					this.sortedFiles.length === 0
-						? 'Vault 中还没有 Markdown 文件。'
+						? '还没有 Markdown 笔记。'
 						: '没有符合当前筛选条件的笔记。',
 			});
 		}

@@ -11,7 +11,7 @@
 	z-index: 5;
 	top: 0;
 	display: flex;
-	align-items: flex-start;
+	align-items: center;
 	justify-content: space-between;
 	gap: 16px;
 	margin: -22px 0 22px;
@@ -20,15 +20,12 @@
 	border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.vault-timeline__heading h2 {
-	margin: 0;
-	font-size: 1.35em;
-}
-
 .vault-timeline__summary {
-	margin-top: 4px;
+	flex-shrink: 0;
 	color: var(--text-muted);
 	font-size: var(--font-ui-smaller);
+	line-height: 32px;
+	white-space: nowrap;
 }
 
 .vault-timeline__sorter {
@@ -41,10 +38,12 @@
 
 .vault-timeline__controls {
 	display: flex;
+	flex: 1;
 	align-items: center;
 	justify-content: flex-end;
 	flex-wrap: wrap;
 	gap: 8px 12px;
+	min-width: 0;
 }
 
 .vault-timeline__composer {
@@ -436,6 +435,12 @@
 	.vault-timeline__header {
 		align-items: flex-start;
 		flex-direction: column;
+		gap: 8px;
+	}
+
+	.vault-timeline__summary {
+		line-height: 1.4;
+		white-space: normal;
 	}
 
 	.vault-timeline__controls,
