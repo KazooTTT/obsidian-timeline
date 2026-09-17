@@ -596,15 +596,15 @@ export class TimelineView extends ItemView {
 		)}`;
 
 		const actions = top.createDiv({ cls: 'vault-timeline__actions' });
-		const copyButton = actions.createEl('button', {
-			cls: 'vault-timeline__action',
-			text: '复制',
-			attr: { 'aria-label': `复制 ${file.basename} 的正文` },
-		});
 		const openButton = actions.createEl('button', {
 			cls: 'vault-timeline__action',
 			text: '打开原文',
 			attr: { 'aria-label': `打开原文 ${file.basename}` },
+		});
+		const copyButton = actions.createEl('button', {
+			cls: 'vault-timeline__action',
+			text: '复制',
+			attr: { 'aria-label': `复制 ${file.basename} 的正文` },
 		});
 
 		const excerpt = createExcerpt(rawContent, PREVIEW_CHARACTER_LIMIT);
