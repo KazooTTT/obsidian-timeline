@@ -67,3 +67,7 @@ npm run build:vault
 npm run dev
 npm run build
 ```
+
+### Note folder
+
+Set `noteFolder` in the plugin `data.json` to a vault-relative folder for new timeline notes (for example, `02-日记/时间线`). Reload the plugin after changing it. The default remains `Timeline`; existing notes are not moved automatically.

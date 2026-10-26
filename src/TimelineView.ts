@@ -15,7 +15,6 @@ import {
 	INITIAL_BATCH_SIZE,
 	PREVIEW_CHARACTER_LIMIT,
 	TIMELINE_ICON,
-	TIMELINE_NOTE_FOLDER,
 	VIEW_TYPE_TIMELINE,
 } from './constants';
 import type TimelinePlugin from './main';
@@ -260,7 +259,7 @@ export class TimelineView extends ItemView {
 		});
 		this.composerEl.createDiv({
 			cls: 'vault-timeline__composer-hint',
-			text: `Obsidian Live Preview · 保存到 ${TIMELINE_NOTE_FOLDER}/ · 文件名自动使用当前时间`,
+			text: `Obsidian Live Preview · 保存到 ${this.plugin.noteFolder}/ · 文件名自动使用当前时间`,
 		});
 		const editorHost = this.composerEl.createDiv({
 			cls: 'vault-timeline__composer-editor',
@@ -269,7 +268,7 @@ export class TimelineView extends ItemView {
 		this.composer = new ObsidianMarkdownComposer(this.app, editorHost, {
 			placeholder: '现在在想什么？支持 Markdown、[[链接]] 和 #标签…',
 			contextFile: this.getComposerContextFile(),
-			contextPath: normalizePath(`${TIMELINE_NOTE_FOLDER}/未命名.md`),
+			contextPath: normalizePath(`${this.plugin.noteFolder}/未命名.md`),
 			onEscape: () => this.closeComposer(),
 			onSubmit: () => {
 				void this.createTimelineNote();
@@ -295,7 +294,7 @@ export class TimelineView extends ItemView {
 		return (
 			this.app.vault
 				.getMarkdownFiles()
-				.find((file) => file.path.startsWith(`${TIMELINE_NOTE_FOLDER}/`)) ??
+				.find((file) => file.path.startsWith(`${this.plugin.noteFolder}/`)) ??
 			this.app.workspace.getActiveFile()
 		);
 	}
@@ -341,29 +340,29 @@ export class TimelineView extends ItemView {
 
 	private async ensureTimelineFolder(): Promise<void> {
 		const existing = this.app.vault.getAbstractFileByPath(
-			TIMELINE_NOTE_FOLDER,
+			this.plugin.noteFolder,
 		);
 		if (existing instanceof TFolder) {
 			return;
 		}
 		if (existing) {
 			throw new Error(
-				`${TIMELINE_NOTE_FOLDER} 已存在，但它不是文件夹。`,
+				`${this.plugin.noteFolder} 已存在，但它不是文件夹。`,
 			);
 		}
-		await this.app.vault.createFolder(TIMELINE_NOTE_FOLDER);
+		await this.app.vault.createFolder(this.plugin.noteFolder);
 	}
 
 	private getAvailableTimelinePath(date: Date): string {
 		const baseName = formatFilenameDate(date);
 		let suffix = 1;
 		let path = normalizePath(
-			`${TIMELINE_NOTE_FOLDER}/${baseName}.md`,
+			`${this.plugin.noteFolder}/${baseName}.md`,
 		);
 		while (this.app.vault.getAbstractFileByPath(path)) {
 			suffix += 1;
 			path = normalizePath(
-				`${TIMELINE_NOTE_FOLDER}/${baseName} (${suffix}).md`,
+				`${this.plugin.noteFolder}/${baseName} (${suffix}).md`,
 			);
 		}
 		return path;

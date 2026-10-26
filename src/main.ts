@@ -1,6 +1,7 @@
-import { Plugin } from 'obsidian';
+import { normalizePath, Plugin } from 'obsidian';
 import {
 	TIMELINE_ICON,
+	TIMELINE_NOTE_FOLDER,
 	VIEW_TYPE_TIMELINE,
 } from './constants';
 import {
@@ -10,15 +11,26 @@ import {
 import type { TimelineSort } from './timeline-utils';
 
 interface TimelineSettings {
+	noteFolder: string;
 	sortBy: TimelineSort;
 }
 
 const DEFAULT_SETTINGS: TimelineSettings = {
+	noteFolder: TIMELINE_NOTE_FOLDER,
 	sortBy: 'created',
 };
 
 export default class TimelinePlugin extends Plugin {
 	settings: TimelineSettings = DEFAULT_SETTINGS;
+
+	get noteFolder(): string {
+		const folder = this.settings.noteFolder;
+		return normalizePath(
+			typeof folder === 'string' && folder.trim()
+				? folder.trim()
+				: TIMELINE_NOTE_FOLDER,
+		);
+	}
 
 	async onload(): Promise<void> {
 		this.settings = Object.assign(
